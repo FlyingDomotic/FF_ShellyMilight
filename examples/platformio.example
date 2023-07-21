@@ -1,0 +1,29 @@
+; PlatformIO Project Configuration File for FF_SHELLY
+;
+; To be placed at root of FF_ShellyMilight folder, where /src folder is located
+[env]
+framework = arduino
+platform = espressif8266 @ ~3.2.0
+lib_deps =
+#  knolleary/PubSubClient@^2.8
+#  thomasfredericks/Bounce2@^2.71
+board = esp12e
+board_build.f_cpu = 80000000L
+board_build.ldscript = eagle.flash.2m.ld
+upload_speed = 460800
+monitor_speed = 74880
+extra_scripts = pre:extra_script.py
+build_flags =
+  -D MQTT_MAX_PACKET_SIZE=256
+
+[env:SHELLY_MILIGHT_D1_MINI]
+build_flags = ${env.build_flags} -D PROG_NAME="ShellyMilightD1Mini" -D SHELLY_MILIGHT_D1_MINI
+board = d1_mini
+board_build.ldscript = eagle.flash.4m.ld
+
+[env:SHELLY_MILIGHT_TEST]
+build_flags = ${env.build_flags} -D PROG_NAME="ShellyMilightTest" -D SHELLY_MILIGHT_TEST
+
+[env:SHELLY_MILIGHT_KITCHEN]
+build_flags = ${env.build_flags} -D PROG_NAME="ShellyMilightKitchen" -D SHELLY_MILIGHT_KITCHEN
+

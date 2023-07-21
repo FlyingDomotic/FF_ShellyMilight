@@ -1,0 +1,203 @@
+//     FF_SHELLY_MILIGHT   Integrates Shelly as switch in an MQTT environment with remotely commanded bulbs
+//
+//         This is the place to define parameters of each module
+//
+//         Should be placed in the same folder as FF_ShellyMilight.cpp
+//
+//         Please have a look to FF_ShellyMilight.cpp to have description of this code
+
+// --------------------------------------
+// ---------- Pins definitions ----------
+// --------------------------------------
+
+//  Shelly 1PM - ESP8266EX - 2 MB flash
+#define SHELLY_BUTTON      4                                // Input button (D2)
+#define SHELLY_RELAY       15                               // Output relay (D8)
+#define SHELLY_BL0937      5                                // BL0937 Single Phase Energy Monitor Chip CF pin (D1)
+#define SHELLY_LED         0                                // Built-in LED (D3)
+#define SHELLY_BACK_BUTTON 2                                // Back push button (D4)
+
+// Macros to quote text
+#define XQUOTE(x) #x
+#define QUOTE(x) XQUOTE(x)
+
+// --------------------------------------
+// ---------- User definitions ----------
+// --------------------------------------
+
+// Debug on Serial if defined (optional)
+//#define SERIAL_TRACE                                      // Trace on Serial if defined (will disable SYSLOG)
+
+// WiFi SSID and key (mandatory)
+#define WIFI_SSID "My_SSID"                                 // WiFi SSID
+#define WIFI_KEY  "M_WiFi_Key"                              // WiFi key
+
+// Define Syslog server port and ip to use (optional)
+#define SYSLOG_HOST "192.168.1.123"                         // Syslog won't be used if SYSLOG_HOST not defined
+#define SYSLOG_PORT 514                                     // Syslog port (514)
+#define SYSLOG_KEEPALIVE 300000                             // Send a keep alive message every 5 mn
+
+// Define MQTT settings (mandatory)
+#define MQTT_SERVER "192.168.1.234"                         // MQTT host
+#define MQTT_PORT 1883                                      // MQTT port
+#define MQTT_USER "My_MQTT_user"                            // MQTT user
+#define MQTT_KEY "My_MQTT_key"                              // MQTT key
+
+// Define Milight bulb ID
+#ifdef SHELLY_D1_MINI
+    #define MILIGHT_BULB_ID "0x1234/rgb_cct/1"
+#endif
+#ifdef SHELLY_TEST
+    #define MILIGHT_BULB_ID "0x1234/rgb_cct/2"
+#endif
+#ifdef SHELLY_KITCHEN
+    #define MILIGHT_BULB_ID "0x4567/rgb_cct/3"
+#endif
+
+// MQTT topics and commands (mandatory)
+#define MQTT_LWT QUOTE(PROG_NAME) "/LWT"                    // Last Will and Testament topic
+#define MQTT_WILL_DOWN_MSG "{\"state\":\"down\"}"           // Last Will and Testament message when crashed
+#define MQTT_WILL_UP_MSG "{\"state\":\"up\"}"               // Last Will and Testament message when up
+#define MQTT_COMMAND "milight/" MILIGHT_BULB_ID             // Command topic (used to send commands to Milight)
+#define MQTT_STATE "milight/states/" MILIGHT_BULB_ID        // State topic (used listen to Milight changes, can be not defined)
+#define MQTT_UPDATE "milight/updates/" MILIGHT_BULB_ID      // Update topic (used listen to Milight changes, can be not defined)
+
+// Define states (mandatory)
+#define STATE_ON "\"state\":\"ON\""                         // String to look for active state in received messages
+#define STATE_OFF "\"state\":\"OFF\""                       // String to look for inactive state in received messages
+#define BULB_ON "{\"state\":\"ON\"}"                        // String to send to set bulb on
+#define BULB_OFF "{\"state\":\"OFF\"}"                      // String to send to set bulb off
+
+// Time to wait for a command ack (mandatory)
+#define COMMAND_TIMEOUT 1500                                // ms to wait between sending a bulb command and getting its feedback
+
+// Define relay stuff (mandatory)
+#ifdef SHELLY_D1_MINI
+    #define RELAY_PIN D4                                    // Relay PIN
+    #define RELAY_ON HIGH                                   // Level of On state
+    #define RELAY_OFF LOW                                   // Level of Off state
+#else
+    #define RELAY_PIN SHELLY_RELAY                          // Relay PIN
+    #define RELAY_ON HIGH                                   // Level of On state
+    #define RELAY_OFF LOW                                   // Level of Off state
+#endif
+
+// Define button PIN (mandatory)
+#ifdef SHELLY_D1_MINI
+    #define BUTTON_PIN D3                                   // Pin where button is connected to
+    #define BUTTON_LOW_TO_HIGH                              // Detect transition from low to high (optional)
+    #define BUTTON_HIGH_TO_LOW                              // Detect transition from high to low (optional)
+    #define BUTTON_MODE INPUT_PULLUP                        // Mode to set pin at startup (any INPUT mode from pinMode)
+#else
+    #define BUTTON_PIN SHELLY_BUTTON                        // Pin where button is connected to
+    #define BUTTON_LOW_TO_HIGH                              // Detect transition from low to high (optional)
+    #define BUTTON_HIGH_TO_LOW                              // Detect transition from high to low (optional)
+    #define BUTTON_MODE INPUT                               // Mode to set pin at startup (any INPUT mode from pinMode)
+#endif
+
+// Define bulb follow-up LED (optional)
+#ifdef SHELLY_D1_MINI
+    #define SHADOW_LED_PIN D1                               // LED pin to activate as internal bulb shadow (to debug, can be not defined)
+    #define SHADOW_LED_ON HIGH                              // Level to set to get turn LED On
+    #define SHADOW_LED_OFF LOW                              // Level to set to get turn LED Off
+#endif
+
+// Define stats (optional)
+#define STATS_INTERVAL 300000                               // Interval to write stats (ms, no stats if not defined)
+
+// Define temperature (optional)
+#ifndef SHELLY_D1_MINI
+    #define TEMPERATURE_TOPIC QUOTE(PROG_NAME) "/temperature" // MQTT topic to send temperature to (can be undefined)
+    #define TEMPERATURE_INTERVAL 15000                      // Temperature scan interval (ms). Message will be send only if temperature changes
+    #define TEMPERATURE_DELTA 2                             // Ignore temperature change lower than this value
+#endif
+
+// --------------------------------------
+// ---------- Data definitions ----------
+// --------------------------------------
+
+//  Arduino framework
+#include <Arduino.h>
+
+// TRACE macro: trace on Serial or on syslog or on nothing
+#ifdef SERIAL_TRACE
+    #define TRACE(x, ...) Serial.printf(x, ##__VA_ARGS__); Serial.print('\n')
+    #ifdef SYSLOG_HOST
+        #warning "SERIAL_TRACE will disable SYSLOG"
+        #undef SYSLOG_HOST
+    #endif
+#else
+    #ifdef SYSLOG_HOST
+        #define TRACE(x, ...) syslog.logf(x, ##__VA_ARGS__)
+    #else
+        #define TRACE(x, ...)
+    #endif
+#endif
+
+// WiFi
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+unsigned long lastDisconnect = 0;                                       // Time (ms) of last WiFi disconnection
+void onWiFiConnect(const WiFiEventStationModeConnected& event);         // To be executed when WiFi connects
+void onWiFiDisconnect(const WiFiEventStationModeDisconnected& event);   // To be executed when WiFi disconnects
+void onWiFiConnectedGotIP(const WiFiEventStationModeGotIP& event);      // To be executer when an IP is given
+
+// Include Syslog if needed
+#ifdef SYSLOG_HOST
+  #include <Syslog.h>
+  WiFiUDP udpClient;
+  Syslog syslog(udpClient, SYSLOG_PROTO_IETF);              // WiFi client
+#endif
+
+// MQTT client
+#include <PubSubClient.h>
+WiFiClient WFClient;
+PubSubClient mqttClient(WFClient);                          // MQTT client
+unsigned long lastMqttConnectAttempt = 0;                   // Time (ms) of last connection attempt
+unsigned long lastMqttCommandSent = 0;                      // Time (ms) of last command sent
+bool mqttAvailable = false;                                 // MQTT connected flag
+bool mqttCommandFailed = false;                             // Last command not acknowledged flag
+
+void mqttSendCommand(const bool newState);
+void mqttCallback(char* topic, byte* payload, unsigned int length);
+boolean mqttReconnect();
+void mqttLoop();
+
+// Relay stuff
+bool relayOn = false;                                       // Relay on flag
+bool bulbOn = false;                                        // Internal bulb on flag
+
+void setRelayOn(bool newState);
+
+// Button stuff
+#include <Bounce2.h>
+Bounce debouncer;                                           // Debouncer for button
+
+bool setBulbOn(const bool newState);
+void buttonLoop();
+void manageCommandTimeout();
+
+// OTA update
+#include <ArduinoOTA.h>
+
+// Stats
+long networkLost = 0;                                       // Count of network failures
+long mqttLost = 0;                                          // Count of MQTT disconnections
+long syncLost = 0;                                          // Count of MQTT synchronization lost
+long pushLost = 0;                                          // Count of button push not acknowledged
+long pushCount = 0;                                         // Count of button pushes
+unsigned long lastStats = 0;                                // Time (ms) of last stats written
+
+#ifdef STATS_INTERVAL
+  void statsLoop();
+#endif
+
+#ifdef TEMPERATURE_TOPIC
+    // Shelly specific
+    unsigned long lastTemperatureMillis = 0;                // Time (ms) of last temperature read
+    int lastTemperature;                                    // Last temperature value (to detect changes)
+    bool temperatureValid = false;                          // Last temperature loaded flag
+
+    void temperatureLoop();
+    int getTemperature();
+#endif
