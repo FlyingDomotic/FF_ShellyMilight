@@ -44,13 +44,13 @@
 #define MQTT_KEY "My_MQTT_key"                              // MQTT key
 
 // Define Milight bulb ID
-#ifdef SHELLY_D1_MINI
+#ifdef SHELLY_MILIGHT_D1_MINI
     #define MILIGHT_BULB_ID "0x1234/rgb_cct/1"
 #endif
-#ifdef SHELLY_TEST
+#ifdef SHELLY_MILIGHT_TEST
     #define MILIGHT_BULB_ID "0x1234/rgb_cct/2"
 #endif
-#ifdef SHELLY_KITCHEN
+#ifdef SHELLY_MILIGHT_KITCHEN
     #define MILIGHT_BULB_ID "0x4567/rgb_cct/3"
 #endif
 
@@ -72,7 +72,7 @@
 #define COMMAND_TIMEOUT 1500                                // ms to wait between sending a bulb command and getting its feedback
 
 // Define relay stuff (mandatory)
-#ifdef SHELLY_D1_MINI
+#ifdef SHELLY_MILIGHT_D1_MINI
     #define RELAY_PIN D4                                    // Relay PIN
     #define RELAY_ON HIGH                                   // Level of On state
     #define RELAY_OFF LOW                                   // Level of Off state
@@ -83,7 +83,7 @@
 #endif
 
 // Define button PIN (mandatory)
-#ifdef SHELLY_D1_MINI
+#ifdef SHELLY_MILIGHT_D1_MINI
     #define BUTTON_PIN D3                                   // Pin where button is connected to
     #define BUTTON_LOW_TO_HIGH                              // Detect transition from low to high (optional)
     #define BUTTON_HIGH_TO_LOW                              // Detect transition from high to low (optional)
@@ -96,7 +96,7 @@
 #endif
 
 // Define bulb follow-up LED (optional)
-#ifdef SHELLY_D1_MINI
+#ifdef SHELLY_MILIGHT_D1_MINI
     #define SHADOW_LED_PIN D1                               // LED pin to activate as internal bulb shadow (to debug, can be not defined)
     #define SHADOW_LED_ON HIGH                              // Level to set to get turn LED On
     #define SHADOW_LED_OFF LOW                              // Level to set to get turn LED Off
@@ -106,7 +106,7 @@
 #define STATS_INTERVAL 300000                               // Interval to write stats (ms, no stats if not defined)
 
 // Define temperature (optional)
-#ifndef SHELLY_D1_MINI
+#ifndef SHELLY_MILIGHT_D1_MINI
     #define TEMPERATURE_TOPIC QUOTE(PROG_NAME) "/temperature" // MQTT topic to send temperature to (can be undefined)
     #define TEMPERATURE_INTERVAL 15000                      // Temperature scan interval (ms). Message will be send only if temperature changes
     #define TEMPERATURE_DELTA 2                             // Ignore temperature change lower than this value

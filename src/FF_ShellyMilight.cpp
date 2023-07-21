@@ -1,7 +1,7 @@
 #define VERSION "23.2.24-1"
 
 /*
-    FF_SHELLY   Integrates Shelly as switch in an MQTT environment with remotely commanded bulbs
+    FF_SHELLY_MILIGHT   Integrates Shelly as switch in an MQTT environment with remotely commanded bulbs
 
     This code manages a button and a relay (inside a Shelly 1PM module but can be anything else)
       to manage a Milight bulb (but can be anything else), with a local bypass (per WAF requirement).
