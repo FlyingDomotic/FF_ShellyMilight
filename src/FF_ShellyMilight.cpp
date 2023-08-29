@@ -84,15 +84,11 @@ void mqttSendCommand(const bool newState) {
 
 // Callback activated when a subscribed event is received
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  char message[MQTT_MAX_PACKET_SIZE];
-  unsigned int msglen;
-
-  // Compute message length vs buffer length
-  msglen = length < sizeof(message) ? length : sizeof(message);
+  char message[length+1];
   // Copy the payload to the message buffer
-  memcpy(message, payload, msglen);
+  memcpy(message, payload, length);
   // End string
-  message[msglen] = 0;
+  message[length] = 0;
   TRACE("Got %s on topic %s", message, topic);
   // If last command failed, ignore received message and resend internal bulb state
   if (mqttCommandFailed) {
@@ -281,7 +277,7 @@ void statsLoop() {
   if ((now - lastStats) > STATS_INTERVAL) {
     // Save last stats time
     lastStats = now;
-    char buffer[255];
+    char buffer[50];
     // Build stats
     snprintf_P(buffer, sizeof(buffer), 
       PSTR("Stats: networkLost %d, mqttLost %d, syncLost %d, pushLost %d, pushCount %d"), 
