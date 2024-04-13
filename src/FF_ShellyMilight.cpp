@@ -24,7 +24,7 @@
       - In this case, we're running in bypass mode, where bulb is managed locally by the relay,
       - When entering in bypass mode, we have to take in account a specific case, when we have to switch the bulb on,
           while power (relay) is already on (but has previously received an OFF frame). To fix this, we turn the
-          relay off for second, in order for capacity in build to discharge, and turn relay on to light bulb. Then,
+          relay off for a second, in order for capacity in build to discharge, and turn relay on to light bulb. Then,
           we enter a normal cycle where bulb is light by power it on, and turned off by cutting power (amazing, isn't it?),
       - Automatic cycle resumes when a state message is received. When this occurs, message is ignored (as state could
           have changed meanwhile), and internal state is sent back. Normal cycle resumes (and Milight state will match
@@ -33,12 +33,12 @@
     Doing that way, module is autonomous, and can work alone, while being able to integrate your domotic system when working ;-)
 
     Lot of things are driven by parameters set in FF_Shelly.c file. Please have a look to it. Here are the main:
-      - Traces are sent to serial (should you decide to test code on a "classical" ESP8266 if you define SERIAL_TRACE,
+      - Traces are sent to serial (should you decide to test code on a "classical" ESP8266 if you define SERIAL_TRACE),
       - Traces are sent to SYSLOG if you define SYSLOG_HOST (and not SERIAL_TRACE),
       - Else traces are not generated,
       - You may define SHADOW_LED_PIN to visualize internal state on a LED,
       - You should define button level change(s) that will trigger an internal state change (BUTTON_LOW_TO_HIGH or BUTTON_HIGH_TO_LOW
-          for a push button, both for a switch)?
+          for a push button, both for a switch),
       - You may write stats to trace defining STATS_INTERVAL,
       - You may send periodically internal temperature to MQTT defining TEMPERATURE_TOPIC
 
