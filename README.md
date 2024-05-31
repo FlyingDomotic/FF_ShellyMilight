@@ -32,7 +32,7 @@ Doing that way, module is autonomous, and can work alone, while being able to in
 
 ## What can be setup?
 
-Lot of things are driven by parameters set in FF_Shelly.c file. Please have a look to it. Here are the main:
+Lot of things are driven by parameters set in FF_ShellyMilight.c file. Please have a look to it. Here are the main:
   - Traces are sent to serial (should you decide to test code on a "classical" ESP8266) if you define SERIAL_TRACE,
   - Traces are sent to SYSLOG if you define SYSLOG_HOST (and not SERIAL_TRACE),
   - Else traces are not generated,
@@ -43,7 +43,7 @@ Lot of things are driven by parameters set in FF_Shelly.c file. Please have a lo
 
 ## Prerequisites
 
-This codes comes with a PlatformIo configuration file, allowing to setup multiple environments. If you don't want to use PlatformIo, you may use Arduino IDE, but should move lib and src folder to root folder, and add the few defines from platformio.ini to Ff_Shelly.h.
+This codes comes with a PlatformIo configuration file, allowing to setup multiple environments. If you don't want to use PlatformIo, you may use Arduino IDE, but should move lib and src folder to root folder, and add the few defines from platformio.ini to FF_ShellyMilight.h.
 
 You may also use VSCodium (or VsCode if you're an MS fan) with platformio extension.
 
@@ -53,19 +53,19 @@ Follow these steps:
 1. Clone repository somewhere on your disk.
 ```
 cd <where_you_want_to_install_it>
-git clone https://github.com/FlyingDomotic/FF_Shelly.git FF_Shelly
+git clone https://github.com/FlyingDomotic/FF_ShellyMilight.git FF_ShellyMilight
 ```
 
 2. Copy platformio.ini file from examples to project root folder
 ```
-cd <where_you_installed_FF_Shelly>
+cd <where_you_installed_FF_ShellyMilight>
 cp ./example/platformio.example ./platformio.ini
 ```
 
-3. Copy FF_Shelly.h from examples to /src folder
+3. Copy FF_ShellyMilight.h from examples to /src folder
 ```
-cd <where_you_installed_FF_Shelly>
-cp ./example/FF_Shelly.example ./src/FF_Shelly.h
+cd <where_you_installed_FF_ShellyMilight>
+cp ./example/FF_ShellyMilight.example ./src/FF_ShellyMilight.h
 ```
 
 4. Adapt these two files to your needs
@@ -74,7 +74,7 @@ cp ./example/FF_Shelly.example ./src/FF_Shelly.h
 
 1. Go to code folder and pull new version:
 ```
-cd <where_you_installed_FF_Shelly>
+cd <where_you_installed_FF_ShellyMilight>
 git pull
 ```
 
